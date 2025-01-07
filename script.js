@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const height = window.innerHeight;
         
         camera.aspect = width / height;
-        camera.updateProjectionMatrix();
+        setupCamera();  // Reconfigure camera and controls on resize
         
         renderer.setSize(width, height);
         backgroundShader.uniforms.resolution.value.set(width, height);
@@ -779,11 +779,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Play Again';
         restartButton.style.position = 'fixed';
-        restartButton.style.top = '70%';
+        restartButton.style.top = window.innerWidth <= 768 ? '80%' : '70%';
         restartButton.style.left = '50%';
         restartButton.style.transform = 'translate(-50%, -50%)';
-        restartButton.style.padding = '15px 30px';
-        restartButton.style.fontSize = '24px';
+        restartButton.style.padding = window.innerWidth <= 768 ? '12px 24px' : '15px 30px';
+        restartButton.style.fontSize = window.innerWidth <= 768 ? '20px' : '24px';
         restartButton.style.backgroundColor = '#4CAF50';
         restartButton.style.color = 'white';
         restartButton.style.border = 'none';
@@ -901,11 +901,11 @@ document.addEventListener('DOMContentLoaded', () => {
     winnerOverlay.style.top = '50%';
     winnerOverlay.style.left = '50%';
     winnerOverlay.style.transform = 'translate(-50%, -50%)';
-    winnerOverlay.style.padding = '20px 40px';
+    winnerOverlay.style.padding = window.innerWidth <= 768 ? '15px 30px' : '20px 40px';
     winnerOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
     winnerOverlay.style.color = '#fff';
     winnerOverlay.style.borderRadius = '10px';
-    winnerOverlay.style.fontSize = '32px';
+    winnerOverlay.style.fontSize = window.innerWidth <= 768 ? '24px' : '32px';
     winnerOverlay.style.fontWeight = 'bold';
     winnerOverlay.style.opacity = '0';
     winnerOverlay.style.transition = 'opacity 0.5s ease-in-out';
@@ -1152,17 +1152,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Adjust camera for perfect centering
-    camera.position.set(4, 3.5, 5.5);  // Further back for better view
-    camera.lookAt(0, 0, 0);
-    camera.fov = 45;  // Keep same perspective
-    camera.updateProjectionMatrix();
+    function setupCamera() {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            camera.position.set(7, 6, 9);  // Adjusted for better mobile view
+            camera.fov = 55;  // Slightly reduced FOV for better depth perception
+        } else {
+            camera.position.set(4, 3.5, 5.5);
+            camera.fov = 45;
+        }
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
 
-    // Adjust controls for wider view
-    controls.minDistance = 7;  // Further distance
-    controls.maxDistance = 7;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.rotateSpeed = 0.5;
-    controls.enablePan = false;
-    controls.enableZoom = false;
+        // Adjust controls based on device
+        controls.minDistance = isMobile ? 12 : 7;
+        controls.maxDistance = isMobile ? 12 : 7;
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.rotateSpeed = isMobile ? 0.8 : 0.5;
+        controls.enablePan = false;
+        controls.enableZoom = false;
+    }
+
+    setupCamera();
+
+    // Add touch event handling for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    window.addEventListener('touchstart', (event) => {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchStartTime = Date.now();
+        isDragging = false;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (event) => {
+        const deltaX = event.touches[0].clientX - touchStartX;
+        const deltaY = event.touches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+            isDragging = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (event) => {
+        if (!isDragging && (Date.now() - touchStartTime) < 200) {
+            // Convert touch to mouse coordinates
+            const touch = event.changedTouches[0];
+            const mouseEvent = new MouseEvent('mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                button: 0
+            });
+            window.dispatchEvent(mouseEvent);
+        }
+    }, { passive: true });
+
+    // Adjust winner overlay for mobile
+    winnerOverlay.style.fontSize = window.innerWidth <= 768 ? '24px' : '32px';
+    winnerOverlay.style.padding = window.innerWidth <= 768 ? '15px 30px' : '20px 40px';
 }); 
