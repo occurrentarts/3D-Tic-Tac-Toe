@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let boxModel;
     
     loader.load(
-        'beveled_box_2.glb',
+        '/3D-Tic-Tac-Toe/beveled_box_2.glb',
         (gltf) => {
             boxModel = gltf.scene.children[0];
             boxModel.scale.set(cubeSize, cubeSize, cubeSize);  // Scale down the model
