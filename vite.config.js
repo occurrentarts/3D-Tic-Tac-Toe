@@ -1,5 +1,5 @@
 export default {
-    base: '/3d-tic-tac-toe/', // Replace with your repository name
+    base: '/3D-Tic-Tac-Toe/',
     build: {
         outDir: 'dist',
     }
