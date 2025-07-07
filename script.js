@@ -926,10 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
         winnerOverlay.style.color = winner === 'X' ? '#ff6666' : '#6666ff';
         winnerOverlay.style.opacity = '1';
         
-        // Fade out after 3 seconds
-        setTimeout(() => {
-            winnerOverlay.style.opacity = '0';
-        }, 3000);
+        // Keep winner message visible until the game is restarted
     }
 
     function showDrawMessage() {
@@ -937,10 +934,7 @@ document.addEventListener('DOMContentLoaded', () => {
         winnerOverlay.style.color = '#ffffff';
         winnerOverlay.style.opacity = '1';
         
-        // Fade out after 3 seconds
-        setTimeout(() => {
-            winnerOverlay.style.opacity = '0';
-        }, 3000);
+        // Keep draw message visible until the game is restarted
     }
 
     function handleCellClick(cube) {
