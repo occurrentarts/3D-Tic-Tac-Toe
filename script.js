@@ -888,7 +888,11 @@ document.addEventListener('DOMContentLoaded', () => {
             [[lastX, 0, 0], [lastX, 1, 1], [lastX, 2, 2]],
             [[lastX, 2, 0], [lastX, 1, 1], [lastX, 0, 2]],
             [[0, 2, 0], [1, 1, 1], [2, 0, 2]],
-            [[2, 2, 0], [1, 1, 1], [0, 0, 2]]
+            [[2, 2, 0], [1, 1, 1], [0, 0, 2]],
+
+            // 3D diagonals across the cube
+            [[0, 0, 0], [1, 1, 1], [2, 2, 2]],
+            [[2, 0, 0], [1, 1, 1], [0, 2, 2]]
         ];
 
         return lines.some(checkLine);
