@@ -23,11 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+    // Base background color used when no winner is present
+    const defaultBaseColor = new THREE.Color(0.02, 0.02, 0.05);
+
     // Create background shader
     const backgroundShader = {
         uniforms: {
             'time': { value: 0 },
-            'resolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            'resolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            'baseColor': { value: defaultBaseColor.clone() }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -39,14 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
         fragmentShader: `
             uniform float time;
             uniform vec2 resolution;
+            uniform vec3 baseColor;
             varying vec2 vUv;
 
             void main() {
                 vec2 uv = gl_FragCoord.xy / resolution.xy;
                 vec2 pos = (uv * 2.0 - 1.0);
                 pos.x *= resolution.x / resolution.y;
-                
-                vec3 color = vec3(0.02, 0.02, 0.05); // Darker base color
+
+                vec3 color = baseColor; // Base color can change on win
                 
                 // Create multiple moving waves
                 for(float i = 1.0; i < 4.0; i++) {
@@ -850,6 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset UI
         updateStatus();
         winnerOverlay.style.opacity = '0';
+        backgroundShader.uniforms.baseColor.value.copy(defaultBaseColor);
     }
 
     function celebrateWin() {
@@ -925,22 +931,19 @@ document.addEventListener('DOMContentLoaded', () => {
         winnerOverlay.textContent = `Player ${winner} Wins!`;
         winnerOverlay.style.color = winner === 'X' ? '#ff6666' : '#6666ff';
         winnerOverlay.style.opacity = '1';
-        
-        // Fade out after 3 seconds
-        setTimeout(() => {
-            winnerOverlay.style.opacity = '0';
-        }, 3000);
+
+        // Tint background to winner's color
+        const color = winner === 'X' ? new THREE.Color(0.4, 0.0, 0.0) : new THREE.Color(0.0, 0.0, 0.4);
+        backgroundShader.uniforms.baseColor.value.copy(color);
+
     }
 
     function showDrawMessage() {
         winnerOverlay.textContent = 'It\'s a Draw!';
         winnerOverlay.style.color = '#ffffff';
         winnerOverlay.style.opacity = '1';
-        
-        // Fade out after 3 seconds
-        setTimeout(() => {
-            winnerOverlay.style.opacity = '0';
-        }, 3000);
+
+        backgroundShader.uniforms.baseColor.value.copy(defaultBaseColor);
     }
 
     function handleCellClick(cube) {
